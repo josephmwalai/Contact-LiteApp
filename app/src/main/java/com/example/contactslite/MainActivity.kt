@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -99,6 +100,17 @@ class MainActivity : ComponentActivity() {
                 composable("contactPage") {ContactPageScreen(viewModel, navController)
                 }
                 composable("addContact") {AddContactScreen(viewModel, navController)
+                }
+                composable("contactDetail/contactId") { navBackStackEntry ->
+                    val contactId = navBackStackEntry.arguments?.getString("contactId")?.toInt()
+                    val contact = viewModel.allContacts.observeAsState(initial = emptyList()).value.find { it.id == contactId }
+                    contact?.let { ContactDetailScreen( it, viewModel, navController) }
+                }
+                composable("editContact/contactId") {navBackStackEntry ->
+                    val contactId = navBackStackEntry.arguments?.getString("contactId")?.toInt()
+                    val contact = viewModel.allContacts.observeAsState(initial = emptyList()).value.find { it.id == contactId }
+                    contact?.let { EditContactScreen(it, viewModel, navController) }
+
                 }
             }
         }
@@ -170,6 +182,78 @@ fun ContactPageScreen(viewModel: ContactViewModel, navController: NavController)
     }
 }
 
+ @OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun ContactDetailScreen(contact: Contact, viewModel: ContactViewModel, navController: NavController) {
+     val context = LocalContext.current.applicationContext
+     Scaffold(topBar = {
+         TopAppBar( modifier = Modifier.height(48.dp),
+             title = {
+                 Box(modifier = Modifier
+                     .fillMaxWidth()
+                     .wrapContentHeight(Alignment.CenterVertically)) {
+                     Text(text = "Contact Details", fontSize = 18.sp)
+                 }
+             }, navigationIcon = {
+                 IconButton(onClick = {
+                     Toast.makeText(
+                         context,
+                         "Contact Details",
+                         Toast.LENGTH_SHORT
+                     ).show()
+                 }) {
+                     Icon(
+                         painter = painterResource(id = R.drawable.contactdetails),
+                         contentDescription = null
+                     )
+                 }
+             }, colors = TopAppBarDefaults.topAppBarColors(
+                 containerColor = GreenBk,
+                 titleContentColor = Color.White,
+                 navigationIconContentColor = Color.White)
+         )
+     }, floatingActionButton = {
+         FloatingActionButton(containerColor = GreenBk,
+             onClick = { navController.navigate("editContact/${contact.id}") }) {
+             Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Contact")
+         }
+     }
+     ) { paddingValues ->
+         Column(modifier = Modifier
+             .fillMaxWidth()
+             .padding(paddingValues)
+             .padding(16.dp),
+             verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+             Card(modifier = Modifier
+                 .fillMaxWidth()
+                 .padding(16.dp),
+                 colors = CardDefaults.cardColors(Color.White),
+                 elevation = CardDefaults.cardElevation(5.dp),
+                 shape = RoundedCornerShape(16.dp)
+             ) {
+                 Column(modifier = Modifier
+                     .fillMaxWidth()
+                     .padding(16.dp),
+                     verticalArrangement = Arrangement.Center,
+                     horizontalAlignment = Alignment.CenterHorizontally) {
+                     Image(painter = rememberAsyncImagePainter(contact.image), contentDescription = contact.name,
+                         modifier = Modifier
+                             .size(128.dp)
+                             .clip(CircleShape), contentScale = ContentScale.Crop)
+
+                     Spacer(modifier = Modifier.height(16.dp))
+
+
+                 }
+             }
+         }
+         
+     }
+ }
+@Composable
+fun EditContactScreen(contact: Contact, viewModel: ContactViewModel, navController: NavController) {
+
+}
 
     
 @OptIn(ExperimentalMaterial3Api::class)
