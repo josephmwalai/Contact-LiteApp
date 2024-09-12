@@ -60,9 +60,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -228,7 +230,7 @@ fun ContactPageScreen(viewModel: ContactViewModel, navController: NavController)
                  .fillMaxWidth()
                  .padding(16.dp),
                  colors = CardDefaults.cardColors(Color.White),
-                 elevation = CardDefaults.cardElevation(5.dp),
+                 elevation = CardDefaults.cardElevation(8.dp),
                  shape = RoundedCornerShape(16.dp)
              ) {
                  Column(modifier = Modifier
@@ -242,8 +244,67 @@ fun ContactPageScreen(viewModel: ContactViewModel, navController: NavController)
                              .clip(CircleShape), contentScale = ContentScale.Crop)
 
                      Spacer(modifier = Modifier.height(16.dp))
+                     Card(modifier = Modifier
+                         .fillMaxWidth()
+                         .padding(8.dp),
+                         colors = CardDefaults.cardColors(Color.White),
+                         elevation = CardDefaults.cardElevation(8.dp),
+                         shape = RoundedCornerShape(16.dp)
+                     ) {
+                         Row(modifier = Modifier
+                             .fillMaxWidth()
+                             .padding(16.dp),
+                             verticalAlignment = Alignment.CenterVertically) {
+                             Text(text = "Name:", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                             Spacer(modifier = Modifier.width(8.dp))
+                             Text(contact.name, fontSize = 16.sp)
+                         }
+                     }
+                     Spacer(modifier = Modifier.height(16.dp))
+                     Card(
+                         Modifier
+                             .fillMaxWidth()
+                             .padding(8.dp),
+                         colors = CardDefaults.cardColors(Color.White),
+                         elevation = CardDefaults.cardElevation(8.dp),
+                         shape = RoundedCornerShape(16.dp)
+                         ) {
+                         Row(modifier = Modifier
+                             .fillMaxWidth()
+                             .padding(16.dp),
+                             verticalAlignment = Alignment.CenterVertically) {
+                             Text(text = "Phone:", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                             Spacer(modifier = Modifier.width(8.dp))
+                             Text(contact.phoneNumber, fontSize = 16.sp)
 
-
+                         }
+                     }
+                     Spacer(modifier = Modifier.height(8.dp))
+                     Card(modifier = Modifier
+                         .fillMaxWidth()
+                         .padding(16.dp),
+                         colors = CardDefaults.cardColors(Color.White),
+                         elevation = CardDefaults.cardElevation(8.dp),
+                         shape = RoundedCornerShape(16.dp)
+                     ) {
+                         Row(modifier = Modifier
+                             .fillMaxWidth()
+                             .padding(16.dp),
+                             verticalAlignment = Alignment.CenterVertically) {
+                             Text(text = "Email:", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                             Spacer(modifier = Modifier.width(8.dp))
+                             Text(contact.email, fontSize = 16.sp)
+                         }
+                     }
+                 }
+             }
+             Spacer(modifier = Modifier.height(16.dp))
+             Button(colors = ButtonDefaults.buttonColors(GreenBk), onClick = {viewModel.deleteContact(contact)
+                 navController.navigate("contactPage"){
+                     popUpTo(0)
+                 }
+             }) {
+                 Text("Delete Contact")
                  }
              }
          }
