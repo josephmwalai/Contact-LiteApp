@@ -311,12 +311,125 @@ fun ContactPageScreen(viewModel: ContactViewModel, navController: NavController)
          
      }
  }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditContactScreen(contact: Contact, viewModel: ContactViewModel, navController: NavController) {
+    val context = LocalContext.current.applicationContext
 
-}
+    var imageUri by remember {
+        mutableStateOf(contact.image)
+    }
+    var name by remember {
+        mutableStateOf(contact.name)
+    }
+    var phoneNumber by remember {
+        mutableStateOf(contact.phoneNumber)
+    }
+    var email by remember {
+        mutableStateOf(contact
+            .email)
+    }
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) {uri: Uri? ->  
+        uri?.let { newUri ->
+            val internalPath = copyUriToInternalStorage(context, newUri, "$name.jpg")
+            internalPath?.let { path -> imageUri = path }
+        }
+    }
 
-    
+    Scaffold(topBar = {
+        TopAppBar(modifier = Modifier
+            .fillMaxWidth()
+            .padding(48.dp),
+            title = {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(Alignment.CenterVertically)) {
+                    Text(text = "Edit Contact", fontSize = 18.sp)
+                }
+            }, navigationIcon = {
+                IconButton(onClick = {Toast.makeText(context,"Edit Contact", Toast.LENGTH_SHORT).show()}) {
+                    Icon(painter = painterResource(id = R.drawable.editcontact), contentDescription = null)
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = GreenBk,
+                navigationIconContentColor = Color.White,
+                titleContentColor = Color.White
+            )
+            )
+    }) {paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(paddingValues)
+            .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+               Image(painter = rememberAsyncImagePainter(imageUri), contentDescription = null,
+                   modifier = Modifier
+                       .size(128.dp)
+                       .clip(CircleShape), contentScale = ContentScale.Crop)
+           }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(onClick = { launcher.launch("image/*")},
+                colors = ButtonDefaults.buttonColors(GreenBk)) {
+                Text(text = "Select Image")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextField(value = name, onValueChange = {name = it},
+                label = { Text(text = "Name")},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Blue,
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedContainerColor = Color.Blue
+                ))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(value = phoneNumber, onValueChange = {phoneNumber = it},
+                label = { Text(text = "Phone Number")}, modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(
+                        RoundedCornerShape(10.dp)
+                    ),
+                colors = TextFieldDefaults.colors(
+                    unfocusedTextColor = Color.Black,
+                    focusedContainerColor = Color.Blue,
+                    focusedTextColor = Color.Black,
+                    unfocusedContainerColor = Color.Blue
+                ))
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(value = email, onValueChange = {email = it},
+                label = { Text(text = "email")},
+                colors = TextFieldDefaults.colors(focusedContainerColor = Color.Blue, unfocusedContainerColor = Color.Blue,
+                    focusedTextColor = Color.Black, unfocusedTextColor = Color.Black), 
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp)))
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+               val updateContact = contact.copy(image =imageUri, name = name, phoneNumber = phoneNumber, email = email)
+                viewModel.updateContact(updateContact)
+                navController.navigate("contactPage") {
+                    popUpTo(0)
+                }
+            }, colors = ButtonDefaults.buttonColors(GreenBk)) {
+                Text(text = "Update Contact")
+            }
+        }
+
+    }
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) {
@@ -423,6 +536,7 @@ fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) 
                     focusedTextColor = Color.Black,
                     unfocusedContainerColor = Color.Blue
                 ))
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
@@ -457,4 +571,4 @@ fun AddContactScreen(viewModel: ContactViewModel, navController: NavController) 
             null
         }
     }
-}
+
